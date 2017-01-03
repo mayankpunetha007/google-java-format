@@ -17,8 +17,11 @@ package com.google.googlejavaformat.java;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.io.File;
 
 /** A parser for {@link CommandLineOptions}. */
 final class CommandLineOptionsParser {
@@ -32,8 +35,14 @@ final class CommandLineOptionsParser {
     Iterator<String> it = options.iterator();
     while (it.hasNext()) {
       String option = it.next();
+      System.out.print(option);
       if (!option.startsWith("-")) {
-        optionsBuilder.filesBuilder().add(option).addAll(it);
+        File f = new File(option);
+        if(!f.exists()){
+          continue;
+        }else{
+          optionsBuilder.filesBuilder().addAll(getJavaFileList(f));
+        }
         break;
       }
       String flag;
@@ -103,6 +112,28 @@ final class CommandLineOptionsParser {
       }
     }
     return optionsBuilder.build();
+  }
+
+  private static Iterator<? extends String> getJavaFileList(File f) {
+    List<String> ans = new ArrayList<>();
+    recursivelyAddFileList(ans, f);
+    return ans.iterator();
+  }
+
+  private static void recursivelyAddFileList(List<String> ans, File f) {
+    if(f==null){
+      return;
+    }
+    if(f.isDirectory() && f.listFiles()!=null){
+      File[] allFiles = f.listFiles();
+      for(File file:allFiles){
+          recursivelyAddFileList(ans, file);
+      }
+      allFiles=null;
+    }else if(f.getName().endsWith("java")){
+      ans.add(f.getPath());
+      return;
+    }
   }
 
   private static Integer parseInteger(Iterator<String> it, String flag, String value) {

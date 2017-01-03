@@ -1,4 +1,6 @@
-# google-java-format
+# google-java-format-modified
+
+Modifies google-java-format to take Directories as input and recursively scan for java files to format
 
 `google-java-format` is a program that reformats Java source code to comply with
 [Google Java Style][].
